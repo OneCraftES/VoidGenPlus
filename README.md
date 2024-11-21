@@ -50,7 +50,13 @@ VoidGenPlus is a powerful fork of the VoidGen plugin that enhances void world ge
 - Full build range support (-64 to 320)
 - Dimension-specific default heights
 
-## Quick Start
+### 🏗️ Custom Layer Generation
+- Support for Minecraft's superflat layer format
+- Define custom world layers using simple strings
+- Mix and match with other generation settings
+- Compatible with all dimensions
+
+## 🚀 Quick Start
 
 Create a void world with specific environment:
 ```
@@ -67,11 +73,17 @@ Examples:
 
 # Create an end void world
 /mv create voidend VoidGenPlus:the_end
+
+# Create a world with custom layers
+/mv create flatworld VoidGenPlus:normal;{"layers":"minecraft:bedrock,2*minecraft:dirt,minecraft:grass_block"}
+
+# Create a nether world with custom layers
+/mv create netherlayers VoidGenPlus:nether;{"layers":"minecraft:bedrock,5*minecraft:netherrack,minecraft:soul_sand"}
 ```
 
-## Configuration
+## ⚙️ Configuration
 
-Example configuration with custom settings:
+### Basic Settings
 ```json
 {
   "biome": "PLAINS",            // Custom biome (optional)
@@ -82,6 +94,46 @@ Example configuration with custom settings:
   "netherMaxHeight": 320,      // Nether max height
   "endMinHeight": -64,         // End min height
   "endMaxHeight": 320          // End max height
+}
+```
+
+### Layer Configuration
+You can specify layers using Minecraft's superflat format:
+```json
+{
+  "layers": "minecraft:bedrock,2*minecraft:dirt,minecraft:grass_block"
+}
+```
+
+Layer format:
+- Basic block: `minecraft:material`
+- Multiple layers: `count*minecraft:material`
+- Separate layers with commas
+- Examples:
+  - `minecraft:bedrock` - Single bedrock layer
+  - `3*minecraft:stone` - Three stone layers
+  - `minecraft:bedrock,5*minecraft:stone,minecraft:grass_block` - Multiple different layers
+
+Common layer combinations:
+```json
+// Classic superflat
+{
+  "layers": "minecraft:bedrock,2*minecraft:dirt,minecraft:grass_block"
+}
+
+// Desert flat
+{
+  "layers": "minecraft:bedrock,3*minecraft:sandstone,minecraft:sand"
+}
+
+// Nether layers
+{
+  "layers": "minecraft:bedrock,4*minecraft:netherrack,minecraft:soul_sand"
+}
+
+// End platform
+{
+  "layers": "minecraft:bedrock,minecraft:obsidian,minecraft:end_stone"
 }
 ```
 

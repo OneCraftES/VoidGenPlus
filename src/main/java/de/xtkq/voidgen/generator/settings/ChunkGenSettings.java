@@ -48,6 +48,23 @@ public class ChunkGenSettings {
     @SerializedName("endMaxHeight")
     private Integer endMaxHeight = null;
 
+    @SerializedName("layers")
+    private String layerString = null;
+
+    private transient LayerSettings[] layerSettings = null;
+
+    public LayerSettings[] getLayers() {
+        if (layerSettings == null && layerString != null) {
+            layerSettings = LayerSettings.parseLayerString(layerString);
+        }
+        return layerSettings != null ? layerSettings : new LayerSettings[0];
+    }
+
+    public void setLayers(String layers) {
+        this.layerString = layers;
+        this.layerSettings = null; // Force reparse
+    }
+
     public Biome getBiome() {
         return this.biome;
     }

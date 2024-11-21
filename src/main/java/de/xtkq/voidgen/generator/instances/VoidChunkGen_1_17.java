@@ -61,8 +61,22 @@ public class VoidChunkGen_1_17 extends ChunkGen {
             }
         }
 
-        // Place bedrock if enabled
-        if (this.chunkGenSettings.isBedrock()) {
+        // Generate layers if specified
+        ChunkGenSettings.LayerSettings[] layers = this.chunkGenSettings.getLayers();
+        if (layers.length > 0) {
+            for (ChunkGenSettings.LayerSettings layer : layers) {
+                int startY = layer.getY();
+                org.bukkit.Material material = layer.getMaterial();
+                for (int y = startY; y < startY + layer.getCount(); y++) {
+                    for (int x = 0; x < 16; x++) {
+                        for (int z = 0; z < 16; z++) {
+                            chunkData.setBlock(x, y, z, material);
+                        }
+                    }
+                }
+            }
+        } else if (this.chunkGenSettings.isBedrock()) {
+            // Place bedrock if enabled and no layers specified
             int bedrockY = this.chunkGenSettings.getMinHeight(environment);
             if ((0 >= chunkX * 16) && (0 < (chunkX + 1) * 16)) {
                 if ((0 >= chunkZ * 16) && (0 < (chunkZ + 1) * 16)) {

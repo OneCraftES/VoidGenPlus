@@ -5,9 +5,11 @@ import com.google.gson.JsonSyntaxException;
 import de.xtkq.voidgen.generator.annotations.VoidChunkGenInfo;
 import de.xtkq.voidgen.generator.interfaces.ChunkGen;
 import de.xtkq.voidgen.generator.settings.ChunkGenSettings;
+import de.xtkq.voidgen.generator.settings.LayerSettings;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
+import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -50,11 +52,35 @@ public class VoidChunkGen_1_8_8 extends ChunkGen {
             }
         }
 
-        // Place bedrock if enabled
-        if (this.chunkGenSettings.isBedrock()) {
+        // Generate layers if specified
+        LayerSettings[] layers = this.chunkGenSettings.getLayers();
+        if (layers.length > 0) {
+            for (LayerSettings layer : layers) {
+                int startY = Math.max(0, layer.getY()); // Ensure Y >= 0 for 1.8
+                Material material = layer.getMaterial();
+                
+                // Handle legacy material names if needed
+                try {
+                    if (!material.isBlock()) {
+                        material = Material.STONE; // Fallback for invalid materials
+                    }
+                } catch (Exception e) {
+                    material = Material.STONE; // Fallback for incompatible materials
+                }
+                
+                for (int y = startY; y < Math.min(256, startY + layer.getCount()); y++) {
+                    for (int x = 0; x < 16; x++) {
+                        for (int z = 0; z < 16; z++) {
+                            chunkData.setBlock(x, y, z, material);
+                        }
+                    }
+                }
+            }
+        } else if (this.chunkGenSettings.isBedrock()) {
+            // Place bedrock if enabled and no layers specified
             if ((0 >= chunkX * 16) && (0 < (chunkX + 1) * 16)) {
                 if ((0 >= chunkZ * 16) && (0 < (chunkZ + 1) * 16)) {
-                    chunkData.setBlock(0, 0, 0, org.bukkit.Material.BEDROCK);
+                    chunkData.setBlock(0, 0, 0, Material.BEDROCK);
                 }
             }
         }
