@@ -5,7 +5,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'com.guardsquare', name: 'proguard-gradle', version: '7.2.0-beta2'
+        classpath group: 'com.guardsquare', name: 'proguard-gradle', version: '7.4.1'
     }
 }
 
@@ -16,7 +16,7 @@ plugins {
 group = project.plugin_group as Object
 version = project.plugin_version as Object
 
-def targetJavaVersion = 8
+def targetJavaVersion = 17
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     sourceCompatibility = javaVersion
@@ -45,8 +45,8 @@ repositories {
 }
 
 dependencies {
-//    implementation 'org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT'
-    implementation group: 'org.spigotmc', name: 'spigot-api', version: '1.18.1-R0.1-SNAPSHOT'
+    compileOnly group: 'org.spigotmc', name: 'spigot-api', version: '1.21.3-R0.1-SNAPSHOT'
+    compileOnly group: 'org.apache.commons', name: 'commons-lang3', version: '3.14.0'
 }
 
 processResources {
@@ -60,8 +60,11 @@ processResources {
     }
 }
 
-def proguardOutFile = rootProject.file("$buildDir/libs/release.jar")
-def jarFile = jar.outputs.files.singleFile
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+/*
 task proguard(type: ProGuardTask) {
     outputs.upToDateWhen { false }
     configuration 'configuration.pro'
@@ -69,13 +72,18 @@ task proguard(type: ProGuardTask) {
     injars jarFile
     outjars proguardOutFile
     libraryjars configurations.findByName('runtimeClasspath').getFiles()
-    // Java 8
-    libraryjars "${System.getProperty("java.home")}/lib/rt.jar"
-    // Java 9+ compatibility
-    libraryjars "${System.getProperty("java.home")}/jmods/java.base.jmod"
-    libraryjars "${System.getProperty("java.home")}/jmods/java.desktop.jmod"
-    libraryjars "${System.getProperty("java.home")}/jmods/java.logging.jmod"
-    libraryjars "${System.getProperty("java.home")}/jmods/jdk.unsupported.jmod"
+    // Java Runtime
+    libraryjars "${System.getProperty('java.home')}/lib/jrt-fs.jar"
+    
+    // Ignore warnings about missing classes
+    dontwarn 'javax.**'
+    dontwarn 'java.**'
+    dontwarn 'org.bukkit.**'
+    dontwarn 'org.spigotmc.**'
+    
+    // Keep enums
+    keep 'class * extends java.lang.Enum { *; }'
+    keepclassmembers 'enum * { public static **[] values(); public static ** valueOf(java.lang.String); }'
 }
 
 jar.finalizedBy proguard
@@ -83,3 +91,4 @@ proguard.doLast {
     if (!jarFile.delete()) throw new IllegalStateException()
     if (!proguardOutFile.renameTo(jarFile)) throw new IllegalStateException()
 }
+*/
