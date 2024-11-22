@@ -1,13 +1,18 @@
 package de.xtkq.voidgen.generator.settings;
 
 import com.google.gson.annotations.SerializedName;
+import org.bukkit.Material;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
+import org.bukkit.plugin.Plugin;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 
 public class ChunkGenSettings {
-
-    @SerializedName("biome")
-    private Biome biome = null;
+    @SerializedName("bedrock")
+    private boolean bedrock = true;
 
     @SerializedName("caves")
     private boolean caves = false;
@@ -27,114 +32,266 @@ public class ChunkGenSettings {
     @SerializedName("surface")
     private boolean surface = false;
 
-    @SerializedName("bedrock")
-    private boolean bedrock = false;
+    @SerializedName("layers")
+    private String layerString;
+    private LayerSettings[] layerSettings;
+
+    @SerializedName("biome")
+    private String biome = "PLAINS";
 
     @SerializedName("minHeight")
-    private Integer minHeight = null;
+    private int minHeight = -64;
 
     @SerializedName("maxHeight")
-    private Integer maxHeight = null;
+    private int maxHeight = 320;
 
     @SerializedName("netherMinHeight")
-    private Integer netherMinHeight = null;
+    private int netherMinHeight = 0;
 
     @SerializedName("netherMaxHeight")
-    private Integer netherMaxHeight = null;
+    private int netherMaxHeight = 256;
 
     @SerializedName("endMinHeight")
-    private Integer endMinHeight = null;
+    private int endMinHeight = 0;
 
     @SerializedName("endMaxHeight")
-    private Integer endMaxHeight = null;
+    private int endMaxHeight = 256;
 
-    @SerializedName("layers")
-    private String layerString = null;
+    private transient final Logger logger;
+    private transient Plugin plugin;
 
-    private transient LayerSettings[] layerSettings = null;
-
-    public LayerSettings[] getLayers() {
-        if (layerSettings == null && layerString != null) {
-            layerSettings = LayerSettings.parseLayerString(layerString);
-        }
-        return layerSettings != null ? layerSettings : new LayerSettings[0];
+    public ChunkGenSettings(Plugin plugin) {
+        this.logger = plugin.getLogger();
+        this.plugin = plugin;
     }
 
-    public void setLayers(String layers) {
-        this.layerString = layers;
+    public boolean isBedrock() {
+        return bedrock;
+    }
+
+    public void setBedrock(boolean bedrock) {
+        this.bedrock = bedrock;
+    }
+
+    public boolean isCaves() {
+        return caves;
+    }
+
+    public void setCaves(boolean caves) {
+        this.caves = caves;
+    }
+
+    public boolean isDecoration() {
+        return decoration;
+    }
+
+    public void setDecoration(boolean decoration) {
+        this.decoration = decoration;
+    }
+
+    public boolean isMobs() {
+        return mobs;
+    }
+
+    public void setMobs(boolean mobs) {
+        this.mobs = mobs;
+    }
+
+    public boolean isStructures() {
+        return structures;
+    }
+
+    public void setStructures(boolean structures) {
+        this.structures = structures;
+    }
+
+    public boolean isNoise() {
+        return noise;
+    }
+
+    public void setNoise(boolean noise) {
+        this.noise = noise;
+    }
+
+    public boolean isSurface() {
+        return surface;
+    }
+
+    public void setSurface(boolean surface) {
+        this.surface = surface;
+    }
+
+    public LayerSettings[] getLayers() {
+        if (layerSettings == null || layerSettings.length == 0) {
+            parseLayerString();
+        }
+        return layerSettings;
+    }
+
+    public void setLayerString(String layerString) {
+        String oldLayerString = this.layerString;
+        this.layerString = layerString;
+        
+        if (oldLayerString != null && !oldLayerString.equals(layerString)) {
+            plugin.getLogger().warning("Generator settings have been changed for an existing world!");
+            plugin.getLogger().warning("Existing chunks will keep their old generation pattern.");
+            plugin.getLogger().warning("Only newly generated chunks will use the new settings.");
+            plugin.getLogger().warning("This may cause visible borders between old and new chunks.");
+        }
+        
         this.layerSettings = null; // Force reparse
+        parseLayerString();
     }
 
     public Biome getBiome() {
-        return this.biome;
+        try {
+            return Biome.valueOf(biome.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return Biome.PLAINS;
+        }
     }
 
     public Biome getDefaultBiome(Environment environment) {
-        if (this.biome != null) {
-            return this.biome;
+        try {
+            switch (environment) {
+                case NETHER:
+                    return Biome.NETHER_WASTES;
+                case THE_END:
+                    return Biome.THE_END;
+                default:
+                    return Biome.valueOf(biome.toUpperCase());
+            }
+        } catch (IllegalArgumentException e) {
+            return Biome.PLAINS;
         }
-        
-        // Return appropriate default biomes based on environment
-        switch (environment) {
-            case NETHER:
-                return Biome.NETHER_WASTES;
-            case THE_END:
-                return Biome.THE_END;
-            case NORMAL:
-            default:
-                return Biome.PLAINS;
-        }
+    }
+
+    public void setDefaultBiome(String biome) {
+        this.biome = biome;
     }
 
     public int getMinHeight(Environment environment) {
         switch (environment) {
             case NETHER:
-                return netherMinHeight != null ? netherMinHeight : -64;
+                return netherMinHeight;
             case THE_END:
-                return endMinHeight != null ? endMinHeight : -64;
-            case NORMAL:
+                return endMinHeight;
             default:
-                return minHeight != null ? minHeight : -64;
+                return minHeight;
         }
+    }
+
+    public void setMinHeight(int minHeight) {
+        this.minHeight = minHeight;
     }
 
     public int getMaxHeight(Environment environment) {
         switch (environment) {
             case NETHER:
-                return netherMaxHeight != null ? netherMaxHeight : 320;
+                return netherMaxHeight;
             case THE_END:
-                return endMaxHeight != null ? endMaxHeight : 320;
-            case NORMAL:
+                return endMaxHeight;
             default:
-                return maxHeight != null ? maxHeight : 320;
+                return maxHeight;
         }
     }
 
-    public boolean isCaves() {
-        return this.caves;
+    public void setMaxHeight(int maxHeight) {
+        this.maxHeight = maxHeight;
     }
 
-    public boolean isDecoration() {
-        return this.decoration;
+    private void parseLayerString() {
+        if (layerString == null || layerString.isEmpty()) {
+            layerSettings = new LayerSettings[0];
+            return;
+        }
+
+        // Split into layers and options
+        String[] parts = layerString.split(";");
+        String layersSection = parts[0];
+        int yOffset = 0;
+        
+        // Parse Y-offset if present
+        if (parts.length > 1) {
+            try {
+                yOffset = Integer.parseInt(parts[1].trim());
+            } catch (NumberFormatException e) {
+                plugin.getLogger().warning("Invalid Y-offset: " + parts[1]);
+            }
+        }
+
+        // Parse biome if present
+        if (parts.length > 2) {
+            for (String option : parts[2].split(",")) {
+                if (option.startsWith("biome=")) {
+                    String biomeName = option.substring(6).toUpperCase()
+                        .replace("MINECRAFT:", "")
+                        .replace(":", "_");
+                    this.biome = biomeName;
+                }
+            }
+        }
+
+        List<LayerSettings> settingsList = new ArrayList<>();
+        int currentY = yOffset;
+
+        // Split layers and process each one
+        String[] layers = layersSection.split(",");
+
+        for (String layer : layers) {
+            layer = layer.trim();
+            int count = 1;
+            String materialString;
+
+            // Check for multiplier
+            if (layer.contains("*")) {
+                String[] multiplierParts = layer.split("\\*", 2);
+                try {
+                    count = Integer.parseInt(multiplierParts[0].trim());
+                    materialString = multiplierParts[1].trim();
+                } catch (NumberFormatException e) {
+                    plugin.getLogger().warning("Invalid layer multiplier: " + layer);
+                    materialString = layer;
+                }
+            } else {
+                materialString = layer;
+            }
+
+            Material material = parseMaterial(materialString);
+            if (material != null) {
+                settingsList.add(new LayerSettings(currentY, material, count));
+                currentY += count;
+            } else {
+                plugin.getLogger().warning("Invalid material: " + materialString);
+            }
+        }
+
+        this.layerSettings = settingsList.toArray(new LayerSettings[0]);
     }
 
-    public boolean isMobs() {
-        return this.mobs;
+    private Material parseMaterial(String materialString) {
+        // Remove minecraft: prefix if present
+        materialString = materialString.trim();
+        if (materialString.startsWith("minecraft:")) {
+            materialString = materialString.substring(10);
+        }
+        
+        // Convert to Material enum format
+        materialString = materialString.toUpperCase().replace(":", "_");
+        
+        try {
+            return Material.valueOf(materialString);
+        } catch (IllegalArgumentException e) {
+            plugin.getLogger().warning("Invalid material: " + materialString);
+            return null;
+        }
     }
 
-    public boolean isStructures() {
-        return this.structures;
+    public void setPlugin(Plugin plugin) {
+        this.plugin = plugin;
     }
 
-    public boolean isNoise() {
-        return this.noise;
-    }
-
-    public boolean isSurface() {
-        return this.surface;
-    }
-
-    public boolean isBedrock() {
-        return this.bedrock;
+    public Plugin getPlugin() {
+        return plugin;
     }
 }

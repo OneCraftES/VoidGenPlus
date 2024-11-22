@@ -24,11 +24,72 @@ the [GNU General Public License v3.0](https://github.com/xtkq-is-not-available/V
 
 VoidGenPlus is a powerful fork of the VoidGen plugin that enhances void world generation with advanced features and full dimension support. The plugin enables server owners to create customized void worlds across all Minecraft dimensions (Overworld, Nether, and End) with precise control over generation settings.
 
-## New Features in VoidGenPlus
+## Quick Start
 
-### Full Dimension Support
-- Create void worlds in any dimension (Overworld, Nether, End)
-- Dimension-specific default biomes
+### Basic Usage
+Create a void world using MultiVerse-Core:
+```bash
+/mv create <worldname> <environment> -g VoidGenPlus
+```
+
+Where:
+- `<worldname>` is your desired world name
+- `<environment>` is one of: normal, nether, or end
+- `-g VoidGenPlus` specifies our void generator
+
+Examples:
+```bash
+# Create an overworld void
+/mv create voidworld normal -g VoidGenPlus
+
+# Create a nether void
+/mv create nethervoid nether -g VoidGenPlus
+
+# Create an end void
+/mv create endvoid end -g VoidGenPlus
+```
+
+### Advanced Configuration
+You can customize the world generation by adding settings:
+```bash
+# Create a world with custom layers
+/mv create flatworld normal -g VoidGenPlus -s "layers:minecraft:bedrock,2*minecraft:dirt,minecraft:grass_block"
+
+# Create a nether world with custom layers
+/mv create netherlayers nether -g VoidGenPlus -s "layers:minecraft:bedrock,5*minecraft:netherrack,minecraft:soul_sand"
+```
+
+## World Creation
+
+When creating a world with Multiverse, use these world types:
+
+- For normal worlds: `normal`
+- For nether worlds: `nether`
+- For end worlds: `end`
+
+Examples:
+
+```bash
+# Create a normal void world
+/mv create voidworld normal -g VoidGenPlus:126*minecraft:air,minecraft:bedrock;1;biome=minecraft:plains
+
+# Create a nether void world
+/mv create netherworld nether -g VoidGenPlus:126*minecraft:air,minecraft:bedrock;1;biome=minecraft:nether_wastes
+
+# Create an end void world
+/mv create endworld end -g VoidGenPlus:126*minecraft:air,minecraft:bedrock;1;biome=minecraft:end_highlands
+```
+
+The world type automatically sets the correct environment which affects:
+- Sky color and fog
+- Ambient lighting
+- Special effects (like nether fog)
+- Default world height limits
+
+## Features
+
+### Dimension Support
+- Works in any dimension (Overworld, Nether, End)
 - Proper height limits for each dimension
 - Environment-aware generation settings
 
@@ -49,30 +110,46 @@ VoidGenPlus is a powerful fork of the VoidGen plugin that enhances void world ge
 - Mix and match with other generation settings
 - Compatible with all dimensions
 
-## 🚀 Quick Start
+## Environment Effects
 
-Create a void world with specific environment:
+Different environments (Overworld, Nether, End) have specific ambient effects:
+
+### Nether Effects
+To enable nether-specific effects like bedrock particles and ambient sounds:
 ```
-/mv create <worldname> VoidGenPlus:<environment>;<settings>
+noise: true
 ```
 
-Examples:
+This will enable:
+- Ambient bedrock particles
+- Nether ambient sounds
+- Other dimension-specific effects
+
+Note: These effects only apply to newly created worlds or when changing settings. Existing chunks will keep their previous settings.
+
+## Nether Portal Setup
+
+When creating nether void worlds, you'll need to properly set up portal linking to avoid errors. There are two approaches:
+
+### Using Multiverse-NetherPortals (Recommended)
+
+1. Install the Multiverse-NetherPortals plugin
+2. Link your worlds using the following commands:
 ```bash
-# Create a normal void world
-/mv create voidworld VoidGenPlus:normal
+# Link an overworld to a nether void world
+/mvnp link normal_world nether_void_world
 
-# Create a nether void world
-/mv create voidnether VoidGenPlus:nether
-
-# Create an end void world
-/mv create voidend VoidGenPlus:the_end
-
-# Create a world with custom layers
-/mv create flatworld VoidGenPlus:normal;{"layers":"minecraft:bedrock,2*minecraft:dirt,minecraft:grass_block"}
-
-# Create a nether world with custom layers
-/mv create netherlayers VoidGenPlus:nether;{"layers":"minecraft:bedrock,5*minecraft:netherrack,minecraft:soul_sand"}
+# Or allow all nether portals to link to your void nether
+/mvnp set nether nether_void_world
 ```
+
+### Manual Portal Creation
+If you're not using Multiverse-NetherPortals, you'll need to:
+1. Create both the overworld and nether void worlds
+2. Manually build portals in both worlds
+3. Use `/mvtp` to travel between worlds instead of portals
+
+Note: Using nether portals without proper world linking can cause errors or crashes.
 
 ## ⚙️ Configuration
 
@@ -81,56 +158,24 @@ Examples:
 {
   "biome": "PLAINS",            // Custom biome (optional)
   "bedrock": true,             // Place bedrock at minimum height
-  "minHeight": -64,            // Overworld min height
-  "maxHeight": 320,            // Overworld max height
-  "netherMinHeight": -64,      // Nether min height
-  "netherMaxHeight": 320,      // Nether max height
-  "endMinHeight": -64,         // End min height
-  "endMaxHeight": 320          // End max height
+  "minHeight": -64,            // Min build height
+  "maxHeight": 320,            // Max build height
+  "layers": "minecraft:bedrock,minecraft:dirt,minecraft:grass_block"  // Custom layers
 }
 ```
 
-### Layer Configuration
-You can specify layers using Minecraft's superflat format:
-```json
-{
-  "layers": "minecraft:bedrock,2*minecraft:dirt,minecraft:grass_block"
-}
-```
+## 🔧 Technical Details
+- Java Version: 21
+- Build System: Gradle
+- Key Dependencies:
+  * Bukkit/Spigot API (1.21.3-R0.1-SNAPSHOT)
+  * Apache Commons Lang3 (3.14.0)
+  * Google Gson (2.10.1)
 
-Layer format:
-- Basic block: `minecraft:material`
-- Multiple layers: `count*minecraft:material`
-- Separate layers with commas
-- Examples:
-  - `minecraft:bedrock` - Single bedrock layer
-  - `3*minecraft:stone` - Three stone layers
-  - `minecraft:bedrock,5*minecraft:stone,minecraft:grass_block` - Multiple different layers
+## 🌐 Supported Environments
+- Minecraft versions: 1.8.8 to 1.21.3
+- Dimensions: Overworld, Nether, End
+- Configurable world generation parameters
 
-Common layer combinations:
-```json
-// Classic superflat
-{
-  "layers": "minecraft:bedrock,2*minecraft:dirt,minecraft:grass_block"
-}
-
-// Desert flat
-{
-  "layers": "minecraft:bedrock,3*minecraft:sandstone,minecraft:sand"
-}
-
-// Nether layers
-{
-  "layers": "minecraft:bedrock,4*minecraft:netherrack,minecraft:soul_sand"
-}
-
-// End platform
-{
-  "layers": "minecraft:bedrock,minecraft:obsidian,minecraft:end_stone"
-}
-```
-
-Default Biomes:
-- Overworld: PLAINS
-- Nether: NETHER_WASTES
-- End: THE_END
+## License
+VoidGenPlus is licensed under the [GNU General Public License v3.0](https://github.com/xtkq-is-not-available/VoidGen/blob/master/LICENSE.md).

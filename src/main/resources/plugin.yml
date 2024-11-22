@@ -1,8 +1,12 @@
-name: '${name}'
-version: '${version}'
-main: '${group}.${name}'
+name: 'VoidGenPlus'
+version: '3.0.0'
+main: 'de.xtkq.voidgen.VoidGen'
 api-version: 1.13
 load: STARTUP
 loadbefore: [ Multiverse-Core, Multiworld ]
-author: '${author}'
-website: '${website}'
+author: 'xtkq'
+website: 'https://github.com/xtkq-is-not-available/VoidGen'
+generator: VoidGenPlus
+commands: {}
+permissions: {}
+depend: [ Multiverse-Core ]

@@ -1,12 +1,11 @@
 package de.xtkq.voidgen.generator.instances;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import de.xtkq.voidgen.VoidGen;
 import de.xtkq.voidgen.generator.annotations.VoidChunkGenInfo;
 import de.xtkq.voidgen.generator.interfaces.ChunkGen;
-import de.xtkq.voidgen.generator.settings.ChunkGenSettings;
-import org.apache.commons.lang3.StringUtils;
+import de.xtkq.voidgen.generator.settings.LayerSettings;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.ChunkGenerator;
@@ -15,43 +14,24 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
+import java.util.Random;
 
-@VoidChunkGenInfo(versions = {"1.17.1", "1.18", "1.18.1"})
+@VoidChunkGenInfo(versions = {"1.17.1", "1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20", "1.20.1", "1.20.2", "1.21", "1.21.1"})
 public class VoidChunkGen_1_17_1 extends ChunkGen {
 
-    public VoidChunkGen_1_17_1(JavaPlugin javaPlugin, String paramIdentifier) {
-        super(javaPlugin);
-        Gson gson = new Gson();
-
-        if (StringUtils.isBlank(paramIdentifier)) {
-            this.chunkGenSettings = new ChunkGenSettings();
-            this.javaPlugin.getLogger().info("Generator settings have not been set. Using default values:");
-        } else {
-            try {
-                this.chunkGenSettings = gson.fromJson(paramIdentifier, ChunkGenSettings.class);
-            } catch (JsonSyntaxException jse) {
-                this.chunkGenSettings = new ChunkGenSettings();
-                this.javaPlugin.getLogger().info("Generator settings \"" + paramIdentifier + "\" syntax is not valid. Using default values:");
-            }
-        }
-        // Posting the currently used chunkGenSettings to console.
-        this.javaPlugin.getLogger().info(gson.toJson(chunkGenSettings));
+    public VoidChunkGen_1_17_1(JavaPlugin plugin, String settings) {
+        super(plugin, settings);
     }
 
     @Override
     public BiomeProvider getDefaultBiomeProvider(WorldInfo worldInfo) {
-        if (Objects.isNull(this.chunkGenSettings.getBiome())) {
-            return null;
-        } else {
-            return new VoidBiomeProvider(this.chunkGenSettings.getBiome());
-        }
+        return new VoidBiomeProvider(this.chunkGenSettings.getDefaultBiome(Environment.NORMAL));
     }
 
     @Override
-    public ChunkGenerator.ChunkData generateChunkData(World world, java.util.Random random, int chunkX, int chunkZ, ChunkGenerator.BiomeGrid paramBiomeGrid) {
+    public ChunkGenerator.ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, ChunkGenerator.BiomeGrid paramBiomeGrid) {
         ChunkGenerator.ChunkData chunkData = createChunkData(world);
-        org.bukkit.World.Environment environment = world.getEnvironment();
+        Environment environment = world.getEnvironment();
         
         // Set biomes for the entire chunk
         if (paramBiomeGrid != null) {
@@ -68,11 +48,11 @@ public class VoidChunkGen_1_17_1 extends ChunkGen {
         }
 
         // Generate layers if specified
-        ChunkGenSettings.LayerSettings[] layers = this.chunkGenSettings.getLayers();
+        LayerSettings[] layers = this.chunkGenSettings.getLayers();
         if (layers.length > 0) {
-            for (ChunkGenSettings.LayerSettings layer : layers) {
+            for (LayerSettings layer : layers) {
                 int startY = layer.getY();
-                org.bukkit.Material material = layer.getMaterial();
+                Material material = layer.getMaterial();
                 
                 // Ensure Y is within world bounds
                 startY = Math.max(this.chunkGenSettings.getMinHeight(environment), startY);
@@ -91,7 +71,7 @@ public class VoidChunkGen_1_17_1 extends ChunkGen {
             int bedrockY = this.chunkGenSettings.getMinHeight(environment);
             if ((0 >= chunkX * 16) && (0 < (chunkX + 1) * 16)) {
                 if ((0 >= chunkZ * 16) && (0 < (chunkZ + 1) * 16)) {
-                    chunkData.setBlock(0, bedrockY, 0, org.bukkit.Material.BEDROCK);
+                    chunkData.setBlock(0, bedrockY, 0, Material.BEDROCK);
                 }
             }
         }
@@ -102,8 +82,8 @@ public class VoidChunkGen_1_17_1 extends ChunkGen {
     private static class VoidBiomeProvider extends BiomeProvider {
         private final Biome biome;
 
-        public VoidBiomeProvider(Biome paramBiome) {
-            this.biome = paramBiome;
+        public VoidBiomeProvider(Biome biome) {
+            this.biome = biome;
         }
 
         @Override
