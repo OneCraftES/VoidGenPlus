@@ -2,27 +2,12 @@ THIS FORK ISN'T BEEN TESTED IN VERSIONS EARLIER THAN 1.21.3 AND MAY BE A DUMPSTE
 
 # VoidGen
 
-VoidGen is a Minecraft plugin that enables server owners to create countless custom void worlds with a powerful and
-lightweight generator system. The plugin is made to handle all aspects of how you create void worlds. If you find any bug or have crashed because of the plugin, please report it at
-my [official Discord server](https://discord.gg/Q7yj32FMFh).
-
-## How To
-
-Find out how to setup and use the plugin on the [Tutorial page](docs/tutorial.md).
-
-<!---
-## FAQ
-
-Find answers to frequently asked questions on the [FAQ page](docs/faq.md).
---->
-## License
-
-VoidGen is licensed under
-the [GNU General Public License v3.0](https://github.com/xtkq-is-not-available/VoidGen/blob/master/LICENSE.md). 
+VoidGen was a Minecraft plugin that enabled server owners to create countless custom void worlds with a powerful and
+lightweight generator system.
 
 # VoidGenPlus
 
-VoidGenPlus is a powerful fork of the VoidGen plugin that enhances void world generation with advanced features and full dimension support. The plugin enables server owners to create customized void worlds across all Minecraft dimensions (Overworld, Nether, and End) with precise control over generation settings.
+VoidGenPlus is a powerful fork of the VoidGen plugin that enhances void world generation with advanced features and full dimension support. The plugin enables server owners to create customized void and superflat customized worlds across all Minecraft dimensions (Overworld, Nether, and End) with precise control over generation settings.
 
 ## Quick Start
 
@@ -110,46 +95,9 @@ The world type automatically sets the correct environment which affects:
 - Mix and match with other generation settings
 - Compatible with all dimensions
 
-## Environment Effects
-
-Different environments (Overworld, Nether, End) have specific ambient effects:
-
-### Nether Effects
-To enable nether-specific effects like bedrock particles and ambient sounds:
-```
-noise: true
-```
-
-This will enable:
-- Ambient bedrock particles
-- Nether ambient sounds
-- Other dimension-specific effects
-
-Note: These effects only apply to newly created worlds or when changing settings. Existing chunks will keep their previous settings.
-
 ## Nether Portal Setup
 
-When creating nether void worlds, you'll need to properly set up portal linking to avoid errors. There are two approaches:
-
-### Using Multiverse-NetherPortals (Recommended)
-
-1. Install the Multiverse-NetherPortals plugin
-2. Link your worlds using the following commands:
-```bash
-# Link an overworld to a nether void world
-/mvnp link normal_world nether_void_world
-
-# Or allow all nether portals to link to your void nether
-/mvnp set nether nether_void_world
-```
-
-### Manual Portal Creation
-If you're not using Multiverse-NetherPortals, you'll need to:
-1. Create both the overworld and nether void worlds
-2. Manually build portals in both worlds
-3. Use `/mvtp` to travel between worlds instead of portals
-
-Note: Using nether portals without proper world linking can cause errors or crashes.
+When creating nether void worlds, you'll need to properly set up portal linking to avoid errors. 
 
 ## ⚙️ Configuration
 
@@ -171,11 +119,3 @@ Note: Using nether portals without proper world linking can cause errors or cras
   * Bukkit/Spigot API (1.21.3-R0.1-SNAPSHOT)
   * Apache Commons Lang3 (3.14.0)
   * Google Gson (2.10.1)
-
-## 🌐 Supported Environments
-- Minecraft versions: 1.8.8 to 1.21.3
-- Dimensions: Overworld, Nether, End
-- Configurable world generation parameters
-
-## License
-VoidGenPlus is licensed under the [GNU General Public License v3.0](https://github.com/xtkq-is-not-available/VoidGen/blob/master/LICENSE.md).
