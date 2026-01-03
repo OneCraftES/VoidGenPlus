@@ -1,6 +1,6 @@
 THIS FORK ISN'T BEEN TESTED IN VERSIONS EARLIER THAN 1.21.3 AND MAY BE A DUMPSTER FIRE - USE AT YOUR OWN RISK OR STICK WITH ORIGINAL VOIDGEN.
 
-# VoidGen
+# VoidGenPlus
 
 VoidGen was a Minecraft plugin that enabled server owners to create countless custom void worlds with a powerful and
 lightweight generator system.

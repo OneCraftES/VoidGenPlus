@@ -15,7 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.Arrays;
 import java.util.Random;
 
-public final class VoidGen extends JavaPlugin {
+public final class VoidGenPlus extends JavaPlugin {
 
     private ChunkGenVersion chunkGenVersion;
     private EventManager eventManager;
