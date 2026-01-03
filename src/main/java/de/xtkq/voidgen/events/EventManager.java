@@ -5,7 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class EventManager {
 
     private final JavaPlugin javaPlugin;
-    private PlayerLoginListener playerLogin;
+    private PlayerJoinListener playerJoin;
     private WorldLoadListener worldLoad;
 
     public EventManager(JavaPlugin paramPlugin) {
@@ -13,13 +13,13 @@ public class EventManager {
     }
 
     public void initialize() {
-        this.playerLogin = new PlayerLoginListener(this.javaPlugin);
+        this.playerJoin = new PlayerJoinListener(this.javaPlugin);
         this.worldLoad = new WorldLoadListener(this.javaPlugin);
     }
 
     public void terminate() {
-        if (this.playerLogin != null) {
-            this.playerLogin.terminate();
+        if (this.playerJoin != null) {
+            this.playerJoin.terminate();
         }
         if (this.worldLoad != null) {
             this.worldLoad.terminate();
