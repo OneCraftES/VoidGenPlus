@@ -9,7 +9,7 @@
 ## Where to put the plugin?
 
 If your server is currently running, Stop it. <br>
-Download the [latest plugin release](https://github.com/xtkq-is-not-available/VoidGen/releases/latest) and drop it in the plugin directory. Afterwards start your server back up. The plugin will automatically detect which ChunkGeneration version to use, generate the tiny configuration file and post some infos in your server's console. <br>
+Download the [latest plugin release](https://github.com/OneCraftES/VoidGenPlus/releases/latest) and drop it in the plugin directory. Afterwards start your server back up. The plugin will automatically detect which ChunkGeneration version to use, generate the tiny configuration file and post some infos in your server's console. <br>
 To check if the plugin loaded successfully either run the command `/plugins` ingame or from the console and see if the plugin's name is listed green.
 
 ## Setup of the bukkit.yml file
@@ -19,21 +19,44 @@ Open up the `bukkit.yml` file from your server directory and go to the end of th
 
     worlds:
       worldname_1:
-        generator: VoidGen
+        generator: VoidGenPlus
       worldname_2:
-        generator: VoidGen
+        generator: VoidGenPlus
 
 It is also possible to modify the basic generator with additional [parameters](#Parameters). You can use any amount of parameters you want to set in any order. Note that specifying the default value of a parameter is the same as not specifying it at all. Chaining multiple parameters together can be done with *commas* as can be seen in the examples:
 
     worlds:
       worldname_3:
-        generator: VoidGen:{biome:CRIMSON_FOREST}
+        generator: VoidGenPlus:{biome:CRIMSON_FOREST}
       worldname_4:
-        generator: VoidGen:{decoration:true, structures:true, mobs:true, biome:END_BARRENS}
+        generator: VoidGenPlus:{decoration:true, structures:true, mobs:true, biome:END_BARRENS}
 
 ## World management
 
-Coming soon...
+To create void worlds using Multiverse-Core, use the following commands:
+
+- **Overworld Void:**
+  ```bash
+  /mv create voidworld normal -g VoidGenPlus
+  ```
+
+- **Nether Void:**
+  ```bash
+  /mv create nethervoid nether -g VoidGenPlus
+  ```
+
+- **End Void:**
+  ```bash
+  /mv create endvoid end -g VoidGenPlus
+  ```
+
+### Custom Layers (Superflat Style)
+You can create worlds with specific layers using the `layers` parameter. This supports the standard Minecraft superflat string format (without the version prefix).
+
+- **Example (Bedrock + Dirt + Grass):**
+  ```bash
+  /mv create flatworld normal -g VoidGenPlus -s "layers:minecraft:bedrock,2*minecraft:dirt,minecraft:grass_block"
+  ```
 
 ## Restart
 
@@ -51,5 +74,6 @@ If you find any bug, have crashed because of the plugin or are still experiencin
 | `decoration` | Controls the creation of vanilla chunk decorations. <br> Not setting this parameter is the same as setting it to false. Mostly used in combination with the `structures` parameter.                                                                                                                                                                                                                                        | `true` / `false`                                                                                       | `{decoration:true}` <br><br> `{structures:true, decoration:true}` |
 | `noise`      | Controls the creation of blocks from noise. Think vanilla stone, basically everything between bedrock and the surface. <br> Not setting this parameter is the same as setting it to false.                                                                                                                                                                                                                                 | `true` / `false`                                                                                       | `{noise:true}`                                                    |
 | `surface`    | Controls the creation of surface blocks. Think vanilla gras blocks. <br> Not setting this parameter is the same as setting it to false. The surface can only generate if blocks are present. The easiest methode of doing so is enabling the `noise` parameter.                                                                                                                                                            | `true` / `false`                                                                                       | `{noise:true}` <br><br> `{noise:true, noise:true}`                |
-| `bedrock`    | Controls the creation of the vanilla bedrock layer at the bottom of the world. <br> Not setting this parameter is the same as setting it to false.                                                                                                                                                                                                                                                                         | `true` / `false`                                                                                       | `{bedrock:true}`                                                  |
+| `bedrock`    | Controls the creation of a **single bedrock block** at `(0, y, 0)` (usually the spawn point) to prevent falling into the void. <br> Not setting this parameter is the same as setting it to false.                                                                                                                                                                                                                                                                         | `true` / `false`                                                                                       | `{bedrock:true}`                                                  |
+| `layers`     | Defines custom layers for the world generation using Minecraft's superflat preset format. <br> Supports block IDs and counts (e.g., `3*minecraft:stone`). <br> **Note:** If this is set, `bedrock` parameter is ignored.                                                                                                                                                               | String (Superflat preset)                                                                              | `{layers:minecraft:bedrock,3*minecraft:stone,minecraft:grass_block}`                              |
 

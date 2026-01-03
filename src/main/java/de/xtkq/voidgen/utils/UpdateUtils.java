@@ -10,7 +10,7 @@ import java.net.URL;
 import java.util.Map;
 
 public class UpdateUtils {
-    private static final String GITHUB_API = "https://api.github.com/repos/xtkq-is-not-available/%s/releases/latest";
+    private static final String GITHUB_API = "https://api.github.com/repos/OneCraftES/%s/releases/latest";
     private static boolean updateAvailable = false;
     private static String latestRelease;
     private static String latestReleaseURL;
@@ -43,11 +43,13 @@ public class UpdateUtils {
                 httpsURLConnection.setRequestProperty("accept", "application/vnd.github.v3+json");
 
                 if (httpsURLConnection.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpsURLConnection.getInputStream()));
+                    BufferedReader bufferedReader = new BufferedReader(
+                            new InputStreamReader(httpsURLConnection.getInputStream()));
                     Map<?, ?> map = gson.fromJson(bufferedReader.readLine(), Map.class);
                     bufferedReader.close();
 
-                    if (isUpdateAvailable(this.plugin.getDescription().getVersion(), ((String) map.get("name")).substring(1))) {
+                    if (isUpdateAvailable(this.plugin.getDescription().getVersion(),
+                            ((String) map.get("name")).substring(1))) {
                         updateAvailable = true;
                         latestRelease = ((String) map.get("name")).substring(1);
                         latestReleaseURL = (String) map.get("html_url");
@@ -61,11 +63,13 @@ public class UpdateUtils {
     }
 
     /**
-     * Returns True if the provided Version is higher than the local plugin version. Also returns False if the versions are equal.
+     * Returns True if the provided Version is higher than the local plugin version.
+     * Also returns False if the versions are equal.
      *
      * @param paramGithubVersion the plugin version which was retrieved from github.
      * @param paramPluginVersion the local plugin version.
-     * @return True if the version on the forums is newer than the local version. False otherwise.
+     * @return True if the version on the forums is newer than the local version.
+     *         False otherwise.
      */
     private boolean isUpdateAvailable(String paramPluginVersion, String paramGithubVersion) {
         String[] localVersion = paramPluginVersion.split("\\.");
@@ -84,4 +88,3 @@ public class UpdateUtils {
         return result == -1;
     }
 }
-
