@@ -36,39 +36,116 @@ public class VoidGenPlus extends JavaPlugin {
             getServer().getScheduler().runTaskLater(this, () -> {
                 // Force Multiverse to recognize our generator
                 try {
-                    Class<?> mvWorldManagerClass = Class.forName("com.onarandombox.MultiverseCore.api.MVWorldManager");
-                    Class<?> mvCoreClass = Class.forName("com.onarandombox.MultiverseCore.MultiverseCore");
                     Object mvCore = multiverseCore;
-                    Object worldManager = mvCoreClass.getMethod("getMVWorldManager").invoke(mvCore);
+                    Class<?> mvCoreClass = mvCore.getClass();
+                    Object worldManager = null;
+
+                    getLogger().info("Inspecting Multiverse-Core methods for WorldManager...");
+                    getLogger().info("Multiverse URI: " + mvCoreClass.getName());
+
+                    // MV5: Check for getApi() first
+                    boolean foundApi = false;
+                    for (java.lang.reflect.Method method : mvCoreClass.getMethods()) {
+                        if (method.getName().equals("getApi") && method.getParameterCount() == 0) {
+                            getLogger().info("Found getApi method, inspecting API object...");
+                            Object apiObject = method.invoke(mvCore);
+                            foundApi = true;
+                            if (apiObject != null) {
+                                Class<?> apiClass = apiObject.getClass();
+                                for (java.lang.reflect.Method apiMethod : apiClass.getMethods()) {
+                                    if (apiMethod.getReturnType().getSimpleName().endsWith("WorldManager")
+                                            && apiMethod.getParameterCount() == 0) {
+                                        getLogger().info(
+                                                "*** Found WorldManager candidate in API: " + apiMethod.getName());
+                                        worldManager = apiMethod.invoke(apiObject);
+                                        break;
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    }
+
+                    // Fallback: Check direct methods if not found in API
+                    if (worldManager == null) {
+                        if (foundApi) {
+                            getLogger()
+                                    .warning("getApi() found but no WorldManager inside it. Checking Core directly...");
+                        }
+                        for (java.lang.reflect.Method method : mvCoreClass.getMethods()) {
+                            getLogger().info("Method: " + method.getName() + " -> " + method.getReturnType().getName()
+                                    + " (Params: " + method.getParameterCount() + ")");
+
+                            if (method.getReturnType().getSimpleName().endsWith("WorldManager")
+                                    && method.getParameterCount() == 0) {
+                                getLogger().info("*** Found Candidate: " + method.getName());
+                                worldManager = method.invoke(mvCore);
+                                break;
+                            }
+                        }
+                    }
+
+                    if (worldManager == null) {
+                        throw new RuntimeException(
+                                "Could not find Multiverse WorldManager method (checked Core and API)!");
+                    }
+
+                    Class<?> mvWorldManagerClass = worldManager.getClass();
 
                     // Check each world
                     for (World world : getServer().getWorlds()) {
-                        if (world.getGenerator() != null && world.getGenerator().getClass().getPackage().getName().startsWith("de.xtkq.voidgen")) {
+                        if (world.getGenerator() != null && world.getGenerator().getClass().getPackage().getName()
+                                .startsWith("de.xtkq.voidgen")) {
                             getLogger().info("Ensuring generator settings for world: " + world.getName());
                             String settings = worldSettings.getWorldSettings(world.getName());
                             if (settings != null) {
                                 getLogger().info("Restoring generator settings for world: " + world.getName());
-                                
+
                                 // Force Multiverse to update its world entry
                                 Object mvWorld = mvWorldManagerClass.getMethod("getMVWorld", String.class)
-                                    .invoke(worldManager, world.getName());
+                                        .invoke(worldManager, world.getName());
                                 if (mvWorld != null) {
                                     // Update the generator in Multiverse's config
                                     mvWorld.getClass().getMethod("setGenerator", String.class)
-                                        .invoke(mvWorld, "VoidGenPlus:" + settings);
+                                            .invoke(mvWorld, "VoidGenPlus:" + settings);
                                     getLogger().info("Updated Multiverse generator settings for: " + world.getName());
                                 }
-                                
+
                                 // Ensure our generator is set
                                 getDefaultWorldGenerator(world.getName(), settings);
                             }
                         }
                     }
-                    
+
                     // Save Multiverse's world config
-                    mvCoreClass.getMethod("saveWorldConfig").invoke(mvCore);
-                    getLogger().info("Saved Multiverse world configuration");
-                    
+                    try {
+                        mvCoreClass.getMethod("saveWorldConfig").invoke(mvCore);
+                        getLogger().info("Saved Multiverse world configuration (Core method)");
+                    } catch (NoSuchMethodException e) {
+                        // MV5: config saving might be handled differently or auto-saved
+                        // Try looking for save method on WorldManager
+                        boolean saved = false;
+                        for (java.lang.reflect.Method m : mvWorldManagerClass.getMethods()) {
+                            if (m.getName().equalsIgnoreCase("saveWorldsConfig") && m.getParameterCount() == 0) {
+                                m.invoke(worldManager);
+                                getLogger().info("Saved Multiverse world configuration (WorldManager method)");
+                                saved = true;
+                                break;
+                            }
+                        }
+
+                        if (!saved) {
+                            // Fallback to generic saveConfig on core
+                            try {
+                                mvCoreClass.getMethod("saveConfig").invoke(mvCore);
+                                getLogger().info("Saved Multiverse configuration (Core saveConfig)");
+                            } catch (Exception ex) {
+                                getLogger().warning(
+                                        "Could not force save Multiverse config (non-critical): " + ex.getMessage());
+                            }
+                        }
+                    }
+
                 } catch (Exception e) {
                     getLogger().warning("Failed to update Multiverse configuration: " + e.getMessage());
                     e.printStackTrace();
@@ -83,7 +160,7 @@ public class VoidGenPlus extends JavaPlugin {
         if (configManager.getConfiguration().getCheckForUpdates()) {
             updateUtils.checkForUpdates();
         }
-        
+
         this.eventManager.initialize();
         getLogger().info("VoidGenPlus generator registered and ready!");
     }
@@ -91,7 +168,7 @@ public class VoidGenPlus extends JavaPlugin {
     @Override
     public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
         getLogger().info("Getting generator for world: " + worldName + " with settings: " + id);
-        
+
         // Store settings for this world if provided
         if (id != null && !id.isEmpty()) {
             worldSettings.saveWorldSettings(worldName, id);
