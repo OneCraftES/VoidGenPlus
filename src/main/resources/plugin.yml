@@ -1,11 +1,11 @@
 name: 'VoidGenPlus'
 version: '3.0.0'
-main: 'de.xtkq.voidgen.VoidGen'
+main: 'de.xtkq.voidgen.VoidGenPlus'
 api-version: 1.13
 load: STARTUP
 loadbefore: [ Multiverse-Core, Multiworld ]
 author: 'xtkq'
-website: 'https://github.com/xtkq-is-not-available/VoidGen'
+website: 'https://github.com/OneCraftES/VoidGenPlus'
 generator: VoidGenPlus
 commands: {}
 permissions: {}
